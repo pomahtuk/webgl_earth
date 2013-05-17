@@ -1,0 +1,7 @@
+17 Apr 15:16:32 - [nodemon] v0.7.6
+17 Apr 15:16:32 - [32m[nodemon] watching: /var/www/pman/data/www/webgl_earth[0m
+17 Apr 15:16:32 - [32m[nodemon] starting `coffee /var/www/pman/data/www/webgl_earth/app.coffee`[0m
+17 Apr 15:16:32 - [nodemon] exception in nodemon killing node
+Error: EBADF, read
+17 Apr 15:16:32 - [1;31m[nodemon] app crashed - waiting for file changes before starting...[0m
+17 Apr 15:20:23 - [nodemon] exiting

@@ -1,0 +1,80 @@
+    <div class="container">
+
+      <div clsaa="row">
+        <div clsaa="span12">
+          <div class='widget stacked'>
+            <div class="widget-header">
+              <i class="icon-th-large"></i>
+              <h3>Current cities data</h3>
+            </div>
+            <div class="widget-content">
+              <table class="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th>
+                      Code
+                      <br>
+                      <input type="text" class="span1" ng-change="filter()" ng-model="search.code">
+                    </th>
+                    <th>
+                      Country Code
+                      <input type="text" class="span1" ng-change="filter()" ng-model="search.country_code">
+                    </th>
+                    <th>
+                      Coordinates
+                      <input type="text" class="span2" ng-change="filter()" ng-model="search.coordinates">
+                    </th>
+                    <th>
+                      City name EN/RU
+                      <input type="text" class="span2" ng-change="filter()" ng-model="search.city_name">
+                    </th>
+                    <th>
+                      Flickr Place ID
+                      <input type="text" class="span2" ng-change="filter()" ng-model="search.flickr">
+                    </th>
+                    <th>
+                      Wikipedia ID
+                      <input type="text" class="span2" ng-change="filter()" ng-model="search.wikipedia_array">
+                    </th>
+                    <th>
+                      Actions
+                      <br>
+                      <a class="btn btn-primary" style="white-space: nowrap;" href='#/cities/new'>
+                        <i class="icon-plus icon-white"></i>&nbsp;New city
+                      </a>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="city in filtered = cities | filter:search | startFrom:(currentPage-1)*entryLimit | limitTo:entryLimit">
+                    <td>{{city.code}}</td>
+                    <td>{{city.country_code}}</td>
+                    <td>{{city.coordinates}}</td>
+                    <td>{{city.city_name.en}} / {{city.city_name.ru}}</td>
+                    <td>{{city.flickr.place_id}}</td>
+                    <td>{{city.wikipedia_array.id}}</td>
+                    <td>
+                      <div class="btn-group">
+                        <a class="btn btn-primary" style="white-space: nowrap;" href='#/cities/{{city.code}}'>
+                          <i class="icon-pencil icon-white"></i>&nbsp;Edit
+                        </a>
+                        <a class="btn btn-danger" style="white-space: nowrap;" ng-click="delete_city($event)" href='#{{city._id}}'>
+                          <i class="icon-remove icon-white"></i>&nbsp;Delete
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr ng-show="(cities | filter:search).length==0">
+                    <td colspan="7">
+                      <p>There are no cities for given query</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <pagination data-boundary-links="true" data-num-pages="noOfPages" data-current-page="currentPage" max-size="maxSize" class="pagination pagination-centered" data-previous-text="&laquo;" data-next-text="&raquo;"></pagination>
+            </div>
+          </div>
+        </div>
+      </div>     
+    </div>

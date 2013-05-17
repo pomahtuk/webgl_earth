@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>WebGL Earth project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="stylesheets/bootstrap.css" rel="stylesheet">
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link href="stylesheets/bootstrap-responsive.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">  
+      <div class="navbar-inner">    
+        <div class="container">      
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <i class="icon-cog"></i>
+          </a>      
+          <a class="brand" href="/manager">
+            WebGL Earth Admin
+          </a>      
+          <div class="nav-collapse collapse">
+             <ul class="nav">
+              <li><a href="/manager/cities">Cities</a></li>
+              <li><a href="#about">Countries</a></li>
+              <li class="active"><a href="#contact">Analitics</a></li>
+            </ul>
+            <ul class="nav pull-right">     
+              <li class="dropdown">            
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <i class="icon-user"></i> 
+                  <%= user.username %>
+                  <b class="caret"></b>
+                </a>            
+                <ul class="dropdown-menu">
+                  <li><a href="/logout">Logout</a></li>
+                </ul>            
+              </li>
+            </ul>       
+          </div>  
+        </div>    
+      </div>  
+    </div>
+
+    <div class="container">
+
+      <h1>Bootstrap starter template</h1>
+      <p>Use this document as a way to quick start any new project.<br> All you get is this message and a barebones HTML document.</p>
+
+      <!-- Add Google Analytics authorization button -->
+      <button id="authorize-button" style="visibility: hidden">
+            Authorize Analytics</button>
+
+      <!-- Div element where the Line Chart will be placed -->
+      <div id='line-chart-example'></div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span4" id="chart_1">
+          <h2>Heading</h2>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+        <div class="span4">
+          <h2>Heading</h2>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+       </div>
+        <div class="span4">
+          <h2>Heading</h2>
+          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="javascripts/jquery-1.9.1.min.js"></script>
+    <script src="javascripts/bootstrap.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="javascripts/gadash-1.0.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=gadashInit"></script>
+    <script>
+      // Configure these parameters before you start.
+      var API_KEY = 'AIzaSyC_2nE5F-S7u6vO0sAkbhUyiOzB3EstyrA';
+      var CLIENT_ID = '891879536570.apps.googleusercontent.com';
+      var TABLE_ID = 'ga:71606171';
+      // Format of table ID is ga:xxx where xxx is the profile ID.
+
+      gadash.configKeys({
+        'apiKey': API_KEY,
+        'clientId': CLIENT_ID
+      });
+
+      // Create a new Chart that queries visitors for the last 30 days and plots
+      // visualizes in a line chart.
+      var chart1 = new gadash.Chart({
+        'type': 'LineChart',
+        'divContainer': 'line-chart-example',
+        'last-n-days':30,
+        'query': {
+          'ids': TABLE_ID,
+          'metrics': 'ga:visitors',
+          'dimensions': 'ga:date'
+        },
+        'chartOptions': {
+          height:600,
+          title: 'Visits',
+          curveType: 'function'
+        }
+      }).render();
+    </script>
+  </body>
+</html>
