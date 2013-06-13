@@ -1,12 +1,10 @@
-bingKey = 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS';
-flickrKey = '903614f7ec5aabd30fda3813428ff755';
-flickrSecret = 'c43f15bcdc52ec65';
+bingKey = 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS'
+flickrKey = '903614f7ec5aabd30fda3813428ff755'
+flickrSecret = 'c43f15bcdc52ec65'
+webcams_devid = 'd2a3f882246031d44de64607d65981fd'
 
 @GlobalData = {}
-@GlobalData.new_cities = []
-@GlobalData.flickr_missed = []
-@GlobalData.wikipedia_missed = []
-@GlobalData.both_missed = []
+@GlobalData.booking_missed = []
 
 @currentMarker = {}
 
@@ -72,7 +70,7 @@ enableInput = (scene) ->
 
     true
 
-addMarker = (lat, lon, dart = '/images/dart_small.png') ->
+addMarker = (lat, lon, dart = '/images/dart_2_small.png') ->
     image = new Image();
     image.onload = ->
         billboards = new Cesium.BillboardCollection();
@@ -85,6 +83,7 @@ addMarker = (lat, lon, dart = '/images/dart_small.png') ->
             position : ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(lon, lat))
             horizontalOrigin : Cesium.HorizontalOrigin.LEFT
             verticalOrigin : Cesium.VerticalOrigin.BOTTOM
+            pixelOffset : new Cesium.Cartesian2(0, -28)
             imageIndex : 0
 
         cesiumWidget.scene.getPrimitives().add billboards
@@ -110,8 +109,6 @@ flyTo = (lat, lon, height = 1000000, time = 3000) ->
     true
 
 @thow_dart = ->
-    #$('#left_info_div').hide("slide", { direction: "left" }, 200)
-    #$('#right_info_div').hide("slide", { direction: "right" }, 200)
     $('.current_content').slideUp(500)
     $('#photos_div').slideUp(500)
     $.ajax
@@ -122,6 +119,7 @@ flyTo = (lat, lon, height = 1000000, time = 3000) ->
         window.currentMarker = data
         thow_dart_animation data
         window.location.hash = "#{data.code}"
+        $('title').text(currentMarker.city_name.en+'. DartTrip. Travel to a random city. Throw a dart!')
     true
 
 thow_dart_animation = (random_point) ->
@@ -137,9 +135,9 @@ thow_dart_animation = (random_point) ->
         end_top      = $(window).height() / 2
         start_scale  = '0.7'
         end_scale    = '0.4'
-        correction   = 233
+        correction   = 261
         left_corr    = 103
-        dart_img     = '/images/dart_small.png'
+        dart_img     = '/images/dart_2_small.png'
         photos_width = $(window).width() - 400
         slides       = Math.round(photos_width / 200)
     else
@@ -170,6 +168,7 @@ thow_dart_animation = (random_point) ->
     flow.exec ->
         query_flickr_photos random_point.flickr.place_id, @MULTI("flickr")
         query_openweathermap random_point.coordinates, @MULTI("weather")
+        query_webcams random_point.coordinates, @MULTI("webcams")
         query_wikipedia_with_id random_point.wikipedia_array.id, @MULTI("wikipedia")
     , (results) ->
         wikipedia_info = $('#left_info_div')
@@ -180,26 +179,22 @@ thow_dart_animation = (random_point) ->
         if currentMarker.weather?
             res_html += "<hr/>" + currentMarker.weather
 
-        if currentMarker.places.marks.length > 0 
-            res_html += "<hr/>"
-            for mark, index in currentMarker.places.marks
-                additional_class = 'hidden' if index >= 5
-                res_html += "<div class='place #{additional_class}'>
-                    <img src='#{mark.icon}'> <b>#{mark.name}</b>
-                </div>"
-                #<br/>#{mark.vicinity}
-            res_html += "<a href='#' class='more_results'>Show more results</a><br>" if currentMarker.places.marks.length >= 5
-            if currentMarker.places.legal.length > 0
-                res_html += "<br><em>#{currentMarker.places.legal}</em>"
+        if currentMarker.cams.length > 0
+            res_html += "<hr/><h3>WebCams nearby</h3>
+            <ul class='thumbnails'>"
+            for cam in currentMarker.cams[0..3]
+                res_html += "<li><a href='#{cam.url}' class='thumbnail' target='_blank'>
+                    <img src='#{cam.thumbnail_url}' />
+                </a></li>"
+            res_html += '</ul>'
+
+        res_html += "<div class='partner_buttons'><a class='flight_ticket' target='_blank' href='http://nano.aviasales.ru/searches/new?destination_iata=#{window.currentMarker.code}&with_request=true&marker=20466'>TICKET</a>"
+        #source_iata
+        res_html += "<a class='book_hotel' target='_blank' href='http://www.booking.com/searchresults.html?aid=364956&latitude=#{window.currentMarker.coordinates[0]}&longitude=#{window.currentMarker.coordinates[1]}&radius=100'>HOTEL</a></div>"
 
         wikipedia_info.html "<div class='current_content'>#{res_html}</div>"
+        $('meta[name=description]').attr 'content', currentMarker.info
         $('.current_content').slideUp(0).slideDown(500)
-        #wikipedia_info.show("slide", { direction: "left" }, 300)
-
-        $('a.more_results').click ->
-            elem = $ @
-            $('.place.hidden').removeClass 'hidden'
-            elem.remove()
 
         unless typeof window.currentMarker.photos is 'undefined'
             images_html = "
@@ -229,8 +224,7 @@ thow_dart_animation = (random_point) ->
                     autoPlay: 3000
                     slidesPerSlide: slides
                 mySwiper.startAutoPlay()
-            
-        #$('#right_info_div').show("slide", { direction: "right" }, 300)
+
 
     setTimeout ->
         dart.animate {'left': end_left + (end_left / 100) * 25, 'top': 0, scale: start_scale}, 800, ->
@@ -238,17 +232,18 @@ thow_dart_animation = (random_point) ->
 
                 if full_version
                     addMarker(lat, lng, dart_img)
-                    flyTo lat, lng, 2000000, 300
+                    flyTo lat, lng, 250000, 300
                 else
                     anchor = new Microsoft.Maps.Point(0,134)
-                    pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_small.png', text : ' ', visible: true, width: 138, height: 134, anchor: anchor}
+                    pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_2_small.png', text : ' ', visible: true, width: 138, height: 134, anchor: anchor}
                     pushpin        = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, lng), pushpinOptions);
                     map.entities.push(pushpin)
                     setTimeout ->
-                        map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 8, animate: true });
+                        map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 10, animate: true });
                     , 300
 
                 setTimeout ->
+                    #log '1'
                     dart.css {'display':'none'}
                 , timeout2
 
@@ -365,41 +360,177 @@ query_flickr_photos = (id, callback) ->
 
     true
 
-@ru_wikilocation_recursion = (index = 0, limit = 1000) ->
-    if index <= cities.length && index <= limit
-        city = cities[index]
-        wikilocation_info(city, index, (city, index, data) ->
-            city.wikipedia_array_ru = data.articles[0]
-            GlobalData.new_cities.push city
-            ru_wikilocation_recursion(index + 1)
-        )
+query_webcams = (coordinates = [10.6735399, -85.202766], callback) ->
+    $.ajax
+        url:' http://api.webcams.travel/rest?'
+        method: 'GET'
+        crossDomain: true
+        dataType: 'jsonp'
+        cache: false
+        data:
+            'method': 'wct.webcams.list_nearby'
+            'format': 'json'
+            'devid': webcams_devid
+            'lat': coordinates[0]
+            'lng': coordinates[1]
+            'radius': 10
+            'unit': 'km'
+    .done (data) ->
+        if data.webcams?
+            currentMarker.cams = data.webcams.webcam
+        callback data if callback
 
-wikilocation_info = (city, index, callback) ->
-    $.ajax(
-      url: "http://api.wikilocation.org/articles"
-      method: "GET"
-      crossDomain: true
-      dataType: "jsonp"
-      jsonpCallback: "addPoi"
-      cache: true
-      data:
-        lng: city.coordinates[1]
-        lat: city.coordinates[0]
-        limit: 10
-        radius: 10000
-        locale: 'ru'
-        jsonp: "addPoi"
-    ).done (data) ->
-        callback city, index, data if callback
+# @booking_com_recursion = (index = 0) ->
+#     if index < cities.length
+#         city = cities[index]
+#         booking_com_info(city, index, (index) ->
+#             console.log 'request done'
+#             booking_com_recursion(index + 1)
+#             true
+#         )
+
+# #http://www.booking.com/searchresults.html?iata=ebj
+
+# booking_com_info = (city, index, callback) ->
+#     $.ajax
+#       url: "/booking_check/"
+#       method: "GET"
+#       dataType: "html"
+#       data:
+#         code: city.code
+#     .done (data) ->
+#         #console.log 'as normal'
+#         #console.log data
+#         GlobalData.booking_missed.push city unless data is 'response:200'
+#         callback index if callback
+#     .error (data) ->
+#         #console.log 'error'
+#         GlobalData.booking_missed.push city
+#         callback index if callback
+
+# @ru_wikilocation_recursion = (index = 0) ->
+#     #console.log  index, limit,  cities.length
+#     if index < cities.length
+#         city = cities[index]
+#         wikilocation_info(city, index, (city, index, data) ->
+#             city.wikipedia_array_ru = data.articles[0]
+#             GlobalData.new_cities.push city
+#             ru_wikilocation_recursion(index + 1)
+#         )
+
+# wikilocation_info = (city, index, callback) ->
+#     $.ajax(
+#       url: "http://api.wikilocation.org/articles"
+#       method: "GET"
+#       crossDomain: true
+#       dataType: "jsonp"
+#       jsonpCallback: "addPoi"
+#       cache: true
+#       data:
+#         lng: city.coordinates[1]
+#         lat: city.coordinates[0]
+#         limit: 10
+#         radius: 10000
+#         locale: 'ru'
+#         jsonp: "addPoi"
+#     ).done (data) ->
+#         callback city, index, data if callback
+
+# @claenup_ru_data = ->
+#     GlobalData.cities_ru = []
+#     for city, index in cities
+#         if city.wikipedia_array_ru
+#             GlobalData.cities_ru.push city
+#     console.log GlobalData.cities_ru.length
+#     true
+
+form_select2_regions_data = ->
+    result = []
+    for region, value of regions
+        result.push {id: region, text:region}
+    result
+
+format = (item) -> 
+    item.text
+
+form_select2_countries_data = (sub_regions_array) ->
+    regions_array = $('#region').select2("val")
+    console.log sub_regions_array, regions_array
+    result = []
+    $('#country').select2("val","").select2("destroy")
+    if regions_array.length > 0
+        for region in regions_array
+            for sub_region, value of regions["#{region}"]
+                if sub_region.length > 1
+                    for country in value
+                        result.push {id: country, text:country}
+                #     result.push {id: sub_region, text:sub_region}
+                # else
+                #     result.push {id: value, text:value}
+        $('#country').select2(
+            data: result
+            allowClear: true
+            placeholder: "Any country"
+            formatSelection: format
+            formatResult: format
+            multiple: true
+        ).unbind('change').change (event) ->
+            #console.log event.val
+            #form_select2_sub_regions_data(event.val)
+    # else
+    #     $('#sub_region').select2("val","").select2("destroy")
+    #console.log result
+
+form_select2_sub_regions_data = (regions_array) ->
+    result = []
+    $('#sub_region').select2("val","").select2("destroy")
+    if regions_array.length > 0
+        for region in regions_array
+            for sub_region, value of regions["#{region}"]
+                if sub_region.length > 1
+                    result.push {id: sub_region, text:sub_region}
+                else
+                    result.push {id: value, text:value}
+        $('#sub_region').select2(
+            data: result
+            allowClear: true
+            placeholder: "Any subregion"
+            formatSelection: format
+            formatResult: format
+            multiple: true
+        ).unbind('change').change (event) ->
+            #console.log event.val
+            form_select2_countries_data(event.val)
+    # else
+    #     $('#sub_region').select2("val","").select2("destroy")
+    #console.log result
 
 $ ->
-    $.ajax
-        url:'/cities/'
-        method: 'GET'
-        dataType: 'json'
-    .done (data) ->
-        window.cities = data
-    true
+    # $.ajax
+    #     url:'/cities/'
+    #     method: 'GET'
+    #     dataType: 'json'
+    # .done (data) ->
+    #     window.cities = data
+    # true
+
+    # $.ajax
+    #     url:'/json/ru.json'
+    #     method: 'GET'
+    #     dataType: 'json'
+    # .done (data) ->
+    #     window.cities = data
+    # true
+
+    $('#region').select2(
+        data: form_select2_regions_data()
+        allowClear: true
+        placeholder: "Any region"
+        formatSelection: format
+        formatResult: format
+        multiple: true
+    ).change (event) ->
+        form_select2_sub_regions_data(event.val)
 
     if window.WebGLRenderingContext
     # if false

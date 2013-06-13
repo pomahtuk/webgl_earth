@@ -5,21 +5,22 @@ Module dependencies.
 mongoose         = require 'mongoose'
 #cities_raw       = require './public/json/iata_wiki.json'
 #cities_raw       = require './public/json/iata_array.json'
-cities_raw       = require './public/json/google_places.json'
+cities_raw       = require './public/json/ru.json'
 #countries_raw    = require './public/json/iata_countries.json'
 countries_raw    = require './public/json/formed_regions.json'
 
 citySchema = new mongoose.Schema
-  code:            String
-  country_code:    String
+  code:               String
+  country_code:       String
   city_name:
-    en:            String
-    ru:            String
-  coordinates:     [Number]
-  place_id:        String
-  places:          mongoose.Schema.Types.Mixed
-  flickr:          mongoose.Schema.Types.Mixed
-  wikipedia_array: mongoose.Schema.Types.Mixed
+    en:               String
+    ru:               String
+  coordinates:        [Number]
+  place_id:           String
+  places:             mongoose.Schema.Types.Mixed
+  flickr:             mongoose.Schema.Types.Mixed
+  wikipedia_array:    mongoose.Schema.Types.Mixed
+  wikipedia_array_ru: mongoose.Schema.Types.Mixed
 
 countrySchema = new mongoose.Schema
   code:         String
@@ -39,6 +40,23 @@ conn = mongoose.connect 'mongodb://localhost/webgl_earth'
 for city in cities_raw
   delete city._id
   delete city.__v
+  delete city.place_id
+  delete city.place_id
+  if city.wikipedia_array_ru
+    delete city.wikipedia_array_ru.type
+    delete city.wikipedia_array_ru.mobileurl
+    delete city.wikipedia_array_ru.lat
+    delete city.wikipedia_array_ru.lng
+  delete city.wikipedia_array.type
+  delete city.wikipedia_array.mobileurl
+  delete city.wikipedia_array.lat
+  delete city.wikipedia_array.lng
+  delete city.flickr.latitude
+  delete city.flickr.longitude
+  delete city.flickr.place_type
+  delete city.flickr.place_type_id
+  delete city.flickr.timezone
+  delete city.places
 
 console.log cities_raw.length
 

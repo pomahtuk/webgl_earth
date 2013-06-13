@@ -10,8 +10,15 @@ manager       = require "./routes/manager"
 models        = require "./models/db"
 http          = require "http"
 https         = require "https"
+spdy          = require "spdy"
 path          = require "path"
 fs            = require 'fs'
+Connect       = require 'connect'
+assetManager  = require 'connect-assetmanager'
+connectDomain = require 'connect-domain'
+# numCPUs       = require('os').cpus().length
+
+# console.log numCPUs
 
 
 ####
@@ -49,6 +56,19 @@ passport.deserializeUser (id, done) ->
   models.User.findById id, (err, user) ->
     done err, user
 
+## RESOURCE MANIPULATION
+
+assetManagerGroups = {
+    'css': {
+        'route': /\/static\/css\/[0-9]+\/.*\.css/
+        , 'path': './public/stylesheets/'
+        , 'dataType': 'css'
+        , 'files': [ 'bootstrap.css', 'idangerous.swiper.css', 'normalize.css', 'style.css', 'base-admin-2.css' ]
+    }
+}
+
+assetsManagerMiddleware = assetManager(assetManagerGroups)
+
 ####
 ## MAIN APP CODE
 ####
@@ -59,23 +79,27 @@ app = express()
 app.set "port", process.env.PORT or 3000
 app.set "views", __dirname + "/views"
 app.set "view engine", "ejs"
-app.use express.favicon()
+app.use express.favicon('/public/images/favicon.ico')
+# app.use assetsManagerMiddleware
 app.use express.logger("dev")
 app.use express.bodyParser()
 app.use express.methodOverride()
 app.use express.cookieParser("your secret here")
 #app.use express.session()
-
 app.use express.session
   secret: "awesome unicorns"
   maxAge: new Date(Date.now() + 3600000)
-
+app.use connectDomain()
 app.use flash()
 app.use passport.initialize()
 app.use passport.session()
 app.use app.router
 app.use require("less-middleware")(src: __dirname + "/public")
 app.use express.static(__dirname + '/public')
+
+app.use (err, req, res, next) ->
+  console.log  err
+  res.send 500, "Houston, we have a problem!\n"
 
 #coffee for client
 app.get '/:script.js', (req, res) ->
@@ -85,35 +109,18 @@ app.get '/:script.js', (req, res) ->
   res.send js
 
 # development only
-app.use express.errorHandler()  if "development" is app.get("env")
+app.use express.errorHandler() if "development" is app.get("env")
 
 ####
 ## ROUTING 
 ####
 app.get "/", routes.index
 
-app.get "/gmaps/", (req, res) ->
-  request_data = req.query['location']
-  language = req.query['language']
-  console.log request_data
-
-  options =
-    host: "maps.googleapis.com"
-    path: "/maps/api/place/nearbysearch/json?language=#{language}&location=#{request_data}&radius=10000&name=hotel&sensor=false&key=AIzaSyBbz6bDv-hv_vgELswW4gqDFl4y4eFEauQ"
-    #path: "/maps/api/place/nearbysearch/json?language=#{language}&location=#{request_data}&radius=10000&name=hotel&sensor=false&key=AIzaSyD14OufYp_JgKFOjTuBjKNLroBp14cUdEM"
-    #path: "/maps/api/place/nearbysearch/json?language=#{language}&location=#{request_data}&radius=10000&name=hotel&sensor=false&key=AIzaSyBLGMGDcOJd8g3-G2ZDANn6oeBFTds4da8"
-    #path: "/maps/api/place/nearbysearch/json?language=#{language}&location=#{request_data}&radius=10000&name=hotel&sensor=false&key=AIzaSyB0sn9mKI72i0lNsXvfq2fj0MWXnOwt098"
-
-  callback = (response) ->
-    str = ""    
-    response.on "data", (chunk) ->
-      str += chunk
-    response.on "end", ->
-      res.header 'Content-Type', 'application/json'
-      res.send str
-
-  https.request(options, callback).end()
-
+####
+## Temp insect tech
+####
+app.get "/swarm", (req, res) ->
+  res.render 'skimmers', { user: req.user}
 
 #angular templates
 app.get "/public/template/pagination/pagination.html", (req, res) ->
