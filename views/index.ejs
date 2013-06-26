@@ -23,12 +23,12 @@
 
     </head>
     <body class='nooverflow'>
-
+        <canvas id="webgl-logo"></canvas>
         <div class='button_holder'>
             <a id="demo_action_button" href="#">Throw a dart</a>
         </div>
 
-        <img src='/images/logo.png' style='display:none;'/>
+        <img src='/images/Logo.png' class='logo'/>
         <img src='/images/dart.gif' class='dart'/>
 
         <div id="earth_div"></div>
@@ -37,9 +37,15 @@
             <input type='hidden' style="min-width:250px" multiple="multiple" id='sub_region' />
             <input type='hidden' style="min-width:250px" multiple="multiple" id='country' />
         </div> -->
+
+        <div class='switch_versions'>
+            <a href='#' class='simple' title='Simple view'></a>
+            <a href='#' class='3d' title='3D globe view'></a>
+        </div>
+
         <div id="left_info_div">
             <div class='current_content'>
-                <h3>Lorem ipsum dolor</h3>
+                <h3>Dart Trip</h3>
                 <p>
                     Если Вам надоело выбирать между Турцией и Грецией, Вы можете разнообразить свою жизнь и предоставить выбор случаю. Эта кнопка метнет дротик в любую точку земного шара, а мы поможем забронировать отель и купить авиа билеты. Слабо?
                 </p>
@@ -47,10 +53,10 @@
         </div>
         <div id="right_info_div">
             <div class="addthis_toolbox addthis_floating_style addthis_32x32_style">
-            <a class="addthis_button_vk"></a>
-            <a class="addthis_button_facebook"></a>
-            <a class="addthis_button_twitter"></a>
-            <a class="addthis_button_google_plusone_share"></a>
+                <a class="addthis_button_vk"></a>
+                <a class="addthis_button_facebook"></a>
+                <a class="addthis_button_twitter"></a>
+                <a class="addthis_button_google_plusone_share"></a>
             </div>
             <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=xa-518534d57878e21d"></script>
         </div>
@@ -72,31 +78,7 @@
         </script> -->
 
         <!-- Yandex.Metrika counter -->
-        <script type="text/javascript">
-        (function (d, w, c) {
-            (w[c] = w[c] || []).push(function() {
-                try {
-                    w.yaCounter21455446 = new Ya.Metrika({id:21455446,
-                            clickmap:true,
-                            trackLinks:true,
-                            accurateTrackBounce:true,
-                            trackHash:true});
-                } catch(e) { }
-            });
-
-            var n = d.getElementsByTagName("script")[0],
-                s = d.createElement("script"),
-                f = function () { n.parentNode.insertBefore(s, n); };
-            s.type = "text/javascript";
-            s.async = true;
-            s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
-
-            if (w.opera == "[object Opera]") {
-                d.addEventListener("DOMContentLoaded", f, false);
-            } else { f(); }
-        })(document, window, "yandex_metrika_callbacks");
-        </script>
-        <noscript><div><img src="//mc.yandex.ru/watch/21455446" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+        <script type="text/javascript">(function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter21455446 = new Ya.Metrika({id:21455446, webvisor:true, clickmap:true, trackLinks:true, accurateTrackBounce:true, trackHash:true}); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/21455446" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter -->
 
     </body>

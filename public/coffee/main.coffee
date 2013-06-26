@@ -147,7 +147,7 @@ thow_dart_animation = (random_point) ->
         end_top      = 200
         start_scale  = '0.7'
         end_scale    = '0.4'
-        correction   = 67
+        correction   = 60
         left_corr    = 31
         dart_img     = '/images/dart_mobile.png'
         photos_width = $(window).width()
@@ -160,10 +160,10 @@ thow_dart_animation = (random_point) ->
         timeout = 2000
         timeout2 = 10
     else
-        map.entities.clear()
-        map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 3, animate: true })
+        window.map.entities.clear()
+        window.map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 3, animate: true })
         timeout = 10
-        timeout2 = 300
+        timeout2 = 10
 
     flow.exec ->
         query_flickr_photos random_point.flickr.place_id, @MULTI("flickr")
@@ -234,16 +234,25 @@ thow_dart_animation = (random_point) ->
                     addMarker(lat, lng, dart_img)
                     flyTo lat, lng, 250000, 300
                 else
-                    anchor = new Microsoft.Maps.Point(0,134)
-                    pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_2_small.png', text : ' ', visible: true, width: 138, height: 134, anchor: anchor}
-                    pushpin        = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, lng), pushpinOptions);
-                    map.entities.push(pushpin)
-                    setTimeout ->
-                        map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 10, animate: true });
-                    , 300
+                    if $(window).width() >= 960
+                        anchor = new Microsoft.Maps.Point(0,134)
+                        pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_2_small.png', text : ' ', visible: true, width: 138, height: 134, anchor: anchor}
+                        pushpin        = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, lng), pushpinOptions);
+                        window.map.entities.push(pushpin)
+                        setTimeout ->
+                            window.map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 10, animate: true });
+                        , 300
+                    else
+                        anchor = new Microsoft.Maps.Point(0,62)
+                        pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_mobile.png', text : ' ', visible: true, width: 50, height: 62, anchor: anchor}
+                        pushpin        = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, lng), pushpinOptions);
+                        window.map.entities.push(pushpin)
+                        setTimeout ->
+                            window.map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 10, animate: true });
+                        , 300
 
                 setTimeout ->
-                    #log '1'
+                    #console.log '1'
                     dart.css {'display':'none'}
                 , timeout2
 
@@ -505,6 +514,30 @@ form_select2_sub_regions_data = (regions_array) ->
     #     $('#sub_region').select2("val","").select2("destroy")
     #console.log result
 
+init_cessium_map = () ->
+    window.cesiumWidget = new Cesium.CesiumWidget 'earth_div'
+    window.ellipsoid = Cesium.Ellipsoid.WGS84;
+    layers = cesiumWidget.centralBody.getImageryLayers(); 
+    bing = new Cesium.BingMapsImageryProvider
+        url : 'http://dev.virtualearth.net'
+        key: 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS'
+        mapStyle : Cesium.BingMapsStyle.AERIAL_WITH_LABELS
+    layers.addImageryProvider bing
+    layers.removeAll()
+    layers.addImageryProvider(bing)
+    window.full_version = true
+
+init_2d_map = () ->
+    window.map  = new Microsoft.Maps.Map(document.getElementById('earth_div'), {credentials: 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS', mapTypeId:Microsoft.Maps.MapTypeId.aerial, enableSearchLogo: false, showDashboard: false, zoom: 3, center: new Microsoft.Maps.Location(47.609771, -122.2321543125)})
+    window.full_version = false
+
+destroy_maps = () ->
+    if window.cesiumWidget
+        unless window.cesiumWidget.isDestroyed()
+            window.cesiumWidget.destroy()
+    if window.map
+        window.map.dispose()
+
 $ ->
     # $.ajax
     #     url:'/cities/'
@@ -522,32 +555,72 @@ $ ->
     #     window.cities = data
     # true
 
-    $('#region').select2(
-        data: form_select2_regions_data()
-        allowClear: true
-        placeholder: "Any region"
-        formatSelection: format
-        formatResult: format
-        multiple: true
-    ).change (event) ->
-        form_select2_sub_regions_data(event.val)
+    # $('#region').select2(
+    #     data: form_select2_regions_data()
+    #     allowClear: true
+    #     placeholder: "Any region"
+    #     formatSelection: format
+    #     formatResult: format
+    #     multiple: true
+    # ).change (event) ->
+    #     form_select2_sub_regions_data(event.val)
+
+    if window.self isnt window.top
+        $('#right_info_div').hide()
+
+    window.full_version = false
+    window.current_mode = 'simple'
 
     if window.WebGLRenderingContext
-    # if false
-        window.full_version = true
-        window.cesiumWidget = new Cesium.CesiumWidget 'earth_div'
-        window.ellipsoid = Cesium.Ellipsoid.WGS84;
-        layers = cesiumWidget.centralBody.getImageryLayers(); 
-        bing = new Cesium.BingMapsImageryProvider
-            url : 'http://dev.virtualearth.net'
-            key: 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS'
-            mapStyle : Cesium.BingMapsStyle.AERIAL_WITH_LABELS
-        layers.addImageryProvider bing
-        layers.removeAll()
-        layers.addImageryProvider(bing)
-    else
-        window.map    = new Microsoft.Maps.Map(document.getElementById('earth_div'), {credentials: 'AmhVGlXcVJCaxAht83CRXIID37Krqr_RH8rFjLZMwaakg9s5IzLT2pNBNS7ovsvS', mapTypeId:Microsoft.Maps.MapTypeId.aerial, enableSearchLogo: false, showDashboard: false, zoom: 3, center: new Microsoft.Maps.Location(47.609771, -122.2321543125)})
-        window.full_version = false     
+        canvas = document.getElementById("webgl-logo")
+        gl = canvas.getContext("webgl")
+        if gl
+            window.full_version = true
+            window.current_mode = '3d'
+            init_cessium_map()
+
+    if window.full_version is false
+        $('.switch_versions a.3d').hide()
+        init_2d_map()
+
+    $('.switch_versions a.3d').click ->
+
+        unless window.current_mode is '3d'
+            destroy_maps()
+            init_cessium_map()
+
+            window.current_mode = '3d'
+
+            if window.currentMarker.coordinates
+                lat = window.currentMarker.coordinates[0]
+                lng = window.currentMarker.coordinates[1]
+                if $(window).width() >= 960
+                    dart_img     = '/images/dart_2_small.png'
+                else
+                    dart_img     = '/images/dart_mobile.png'
+
+                addMarker(lat, lng, dart_img)
+                flyTo lat, lng, 250000, 0
+
+    $('.switch_versions a.simple').click ->
+        unless window.current_mode is 'simple'
+            destroy_maps()
+            init_2d_map()
+            window.current_mode = 'simple'
+            if window.currentMarker.coordinates
+                lat = window.currentMarker.coordinates[0]
+                lng = window.currentMarker.coordinates[1]
+                if $(window).width() >= 960
+                    anchor = new Microsoft.Maps.Point(0,134)
+                    pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_2_small.png', text : ' ', visible: true, width: 138, height: 134, anchor: anchor}
+                else
+                    anchor = new Microsoft.Maps.Point(0,62)
+                    pushpinOptions = {icon: 'http://test.allvbg.ru/images/dart_mobile.png', text : ' ', visible: true, width: 50, height: 62, anchor: anchor}
+                
+                pushpin        = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, lng), pushpinOptions)
+                window.map.entities.push(pushpin)
+                window.map.setView({center: new Microsoft.Maps.Location(lat, lng), zoom: 10, animate: true })
+
 
     hash = window.location.hash.split('#')[1]
 
