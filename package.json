@@ -12,6 +12,7 @@
     "connect": "*",
     "coffee-script": "*",
     "mongoose": "*",
-    "passport": "*"
+    "passport": "*",
+    "mongodb": "~1.4.7"
   }
 }
