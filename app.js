@@ -137,13 +137,13 @@ Module dependencies.
     return res.send(500, "Houston, we have a problem!\n");
   });
 
-  app.get('/:script.js', function(req, res) {
-    var cs, js;
-    res.header('Content-Type', 'application/x-javascript');
-    cs = fs.readFileSync("" + __dirname + "/public/coffee/" + req.params.script + ".coffee", "ascii");
-    js = coffee.compile(cs);
-    return res.send(js);
-  });
+  // app.get('/:script.js', function(req, res) {
+  //   var cs, js;
+  //   res.header('Content-Type', 'application/x-javascript');
+  //   cs = fs.readFileSync("" + __dirname + "/public/coffee/" + req.params.script + ".coffee", "ascii");
+  //   js = coffee.compile(cs);
+  //   return res.send(js);
+  // });
 
   if ("development" === app.get("env")) {
     app.use(express.errorHandler());
