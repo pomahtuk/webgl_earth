@@ -36,7 +36,7 @@
 
   Country = mongoose.model('Country', countrySchema);
 
-  mongoose.connect('mongodb://localhost/webgl_earth');
+  mongoose.connect('mongodb://pomahtuk:ipauk17y@ds053479.mongolab.com:53479/heroku_app27148845');
 
   exports.User = User;
 
