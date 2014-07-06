@@ -13,6 +13,7 @@
     "coffee-script": "*",
     "mongoose": "*",
     "passport": "*",
-    "mongodb": "~1.4.7"
+    "mongodb": "~1.4.7",
+    "newrelic": "~1.7.5"
   }
 }

@@ -5,6 +5,8 @@ Module dependencies.
  */
 
 (function() {
+  require('newrelic');
+
   var Connect, LocalStrategy, app, assetManager, assetManagerGroups, assetsManagerMiddleware, cities, coffee, connectDomain, countries, ensureAuthenticated, express, flash, fs, http, https, manager, models, passport, path, routes, spdy;
 
   express = require("express");
